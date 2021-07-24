@@ -66,24 +66,13 @@ cdef class ChargerChain:
                 diff3 += 1
         return diff1, diff3
 
-    cpdef num_combinations(self):
-        g = self._build_graph()
-        cdef int path_counter_size = max(self.data) + 1
-        cdef long * path_counter = <long *> malloc(path_counter_size * sizeof(long))
-        cdef bint * visited = <bint *> malloc(path_counter_size * sizeof(bint))
-        for i in range(path_counter_size):
-            path_counter[i] = 0
-            visited[i] = False
-        path_counter[0] = 1
-        cdef int n = 0
-        cdef int target = max(self.data)
-        cdef list pile = [0]
-        while len(pile) > 0:
-            n = pile.pop(0)
-            if not visited[n]:
-                visited[n] = True
-                for neigh in g.neighbors(n):
-                    path_counter[neigh] += path_counter[n]
-                    if not visited[neigh]: pile.append(neigh)
-        cdef long result = path_counter[path_counter_size - 1]
-        return result
+    L.LL.LL.LL
+LLLLLLL.LL
+L.L.L..L..
+LLLL.LL.LL
+L.LL.LL.LL
+L.LLLLL.LL
+..L.L.....
+LLLLLLLLLL
+L.LLLLLL.L
+L.LLLLL.LL
