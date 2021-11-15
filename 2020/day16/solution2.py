@@ -1,8 +1,9 @@
 from copy import copy
 from random import shuffle
+from path import Path
 
-from day16.parser import parse
-from day16.solution1 import is_in_range
+from parser import parse
+from solution1 import is_in_range
 
 
 def find_fields_assignment(state):
@@ -10,7 +11,6 @@ def find_fields_assignment(state):
     good_tickets = [el for i, el in enumerate(state.other_tickets) if is_correct[i][0]] + [state.my_ticket]
     field_indexes = []
     found_fields = []
-    print(good_tickets)
     remaining_indexes = list(range(len(state.fields)))
     while len(field_indexes) < len(state.fields):
         for field in state.fields:
@@ -20,7 +20,7 @@ def find_fields_assignment(state):
                     print('Value for field', field.name, 'not found')
                 else:
                     print('field:', field.name, '=', field_index)
-                    field_indexes.append(field_index)
+                    field_indexes.append((field_index, field))
                     remaining_indexes.remove(field_index)
                     found_fields.append(field)
     return field_indexes
@@ -40,23 +40,23 @@ def get_field_index(field, tickets, remaining_indexes):
     return None
 
 
-def find_possible_index(field, good_tickets, remaining_indexes):
+def find_possible_index(field, tickets, remaining_indexes):
     possible_indexes = copy(remaining_indexes)
-    for ticket in good_tickets:
-        for i, value in enumerate(ticket.values):
-            if i in possible_indexes:
-                match_field = field.in_any_range(value)
+    for i in remaining_indexes:
+        for ticket in tickets:
+                match_field = ticket.values[i] in field
                 if not match_field:
                     possible_indexes.remove(i)
-            if len(possible_indexes) == 1:
-                return possible_indexes[0]
+                    break
+    if len(possible_indexes) == 1:
+        return possible_indexes[0]
 
 
 def solve(state):
-    field_index = find_fields_assignment(state)
+    field_indexes = find_fields_assignment(state)
     result = 1
     shuffle(state.fields)
-    for field, field_index in zip(state.fields, field_index):
+    for field_index, field in field_indexes:
         if field.name.startswith('departure '):
             print(field.name, f'[{field_index}]', ':', state.my_ticket.values[field_index])
             result *= state.my_ticket.values[field_index]
@@ -64,7 +64,8 @@ def solve(state):
 
 
 def main():
-    state = parse('input.txt')
+    input_path = Path(__file__).parent / 'input.txt'
+    state = parse(input_path)
     result = solve(state)
     assert result > 503022490723, 'result is too low (output website)'
     assert result > 612440092903, 'result is too low (output website)'

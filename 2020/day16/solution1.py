@@ -1,6 +1,6 @@
 from typing import Tuple, List
 
-from day16.parser import parse
+from parser import parse
 
 
 def solve(state):

@@ -37,7 +37,7 @@ for i in range(1, 800, 20):
 
         start = timeit.default_timer()
         start = timeit.default_timer()
-        solution = solution1_nim.main(i)
+        solution = solution1_nim.solution1(i)
         end = timeit.default_timer()
         print('nim solution', solution)
         row['nim'] = end - start

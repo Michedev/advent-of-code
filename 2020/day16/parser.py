@@ -12,6 +12,8 @@ class Field:
     def in_any_range(self, value: int):
         return (self.range1[0] <= value <= self.range1[1]) or (self.range2[0] <= value <= self.range2[1])
 
+    __contains__ = in_any_range
+
 @dataclass
 class Ticket:
     values: List[int]
