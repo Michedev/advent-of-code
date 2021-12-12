@@ -1,13 +1,23 @@
 import argparse
 from path import Path
+import numpy as np
 
 day = Path(__file__).parent
 
-def solution1(data):
-    pass
+def solution1(data: np.array):
+    return np.abs(data - np.median(data)).sum()
 
-def solution2(data):
-    pass
+def solution2(data: np.array):
+    data_mean = data.mean()
+    result = min(distance_solution2(data, np.floor(data_mean)),
+                 distance_solution2(data, np.ceil(data_mean)))
+    assert result < 98363819
+    return result
+
+def distance_solution2(data, mean_value):
+    diffs = np.abs(data - mean_value)
+    return (diffs * (diffs + 1) / 2).sum().astype('int')
+
 
 def setup_argparse():
     import argparse
@@ -17,6 +27,13 @@ def setup_argparse():
     parser.add_argument('--custom', dest='custom', type=str, default=None)
     parser.add_argument('-e', '--example', action='store_true', dest='example')
     return parser
+
+
+def parse(input_file):
+    with open(input_file) as f:
+        data = f.read()
+    return np.array([int(x) for x in data.split(',')])
+
 
 def main():
     parser = setup_argparse()
