@@ -3,11 +3,18 @@ from path import Path
 
 day = Path(__file__).parent
 
+
+def parse(input_file):
+    raise NotImplementedError()
+
+
 def solution1(data):
     raise NotImplementedError()
 
+
 def solution2(data):
     raise NotImplementedError()
+
 
 def setup_argparse():
     import argparse
@@ -17,6 +24,7 @@ def setup_argparse():
     parser.add_argument('--custom', dest='custom', type=str, default=None)
     parser.add_argument('-e', '--example', action='store_true', dest='example')
     return parser
+
 
 def main():
     parser = setup_argparse()
