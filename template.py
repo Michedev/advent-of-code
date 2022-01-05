@@ -78,6 +78,19 @@ class TemplateSolution(abc.ABC, DefaultParsing, DefaultAlgorithms):
         else:
             print(f'solution1(data) = {cls.solution1(data)}')
 
+    @classmethod
+    def parse_solution1(cls, input_file: str):
+        day = cls.data_path()
+        input_path = day / input_file
+        data = cls.parse(input_path)
+        return cls.solution1(data)
+
+    @classmethod
+    def parse_solution2(cls, input_file: str):
+        day = cls.data_path()
+        input_path = day / input_file
+        data = cls.parse(input_path)
+        return cls.solution2(data)
 
 if __name__ == '__main__':
     TemplateSolution.main()
