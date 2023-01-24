@@ -1,0 +1,6 @@
+ABC
+
+AB -> B
+BC -> C
+BB -> A
+CC -> B

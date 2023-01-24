@@ -9,14 +9,28 @@ ROOT = Path(__file__).parent
 class Data:
     year: str
     day: str
-    script_type: Literal['1', '2', 'example'] = '1'
+    script_type: Literal['1', '2', 'example', 'example-2'] = '1'
 
     def as_vscode_task(self):
+        args = [f'{self.year}/{self.day}/solution.py']
+        if self.script_type == 'example':
+            args.append('--example')
+        elif self.script_type == '2':
+            args.append('--solution2')
+        elif self.script_type == 'example-2':
+            args.append('--example')
+            args.append('--solution2')
         return {
             'label': f'{self.year} {self.day} {self.script_type}',
             'type': 'shell',
             'command': 'python',
-            'args': [f'{self.year}/{self.day}/solution.py']
+            'args': args,
+            "options": {
+                "env": {
+                    "PYTHONPATH": f"{self.year}/{self.day}:./"
+                }
+            }
+
         }
 
 tasks = []
@@ -32,6 +46,8 @@ for folder_year in ROOT.dirs():
                     tasks.append(Data(folder_year.name, folder_day.name, '1'))
                     tasks.append(Data(folder_year.name, folder_day.name, '2'))
                     tasks.append(Data(folder_year.name, folder_day.name, 'example'))
+                    tasks.append(Data(folder_year.name, folder_day.name, 'example-2'))
+
 
 tasks = [task.as_vscode_task() for task in tasks]
 output['tasks'] = tasks

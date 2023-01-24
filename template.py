@@ -32,6 +32,8 @@ class DefaultAlgorithms:
 
 class TemplateSolution(abc.ABC, DefaultParsing, DefaultAlgorithms):
 
+    verbose = False
+
     @classmethod
     @abc.abstractmethod
     def data_path(cls):
@@ -59,6 +61,7 @@ class TemplateSolution(abc.ABC, DefaultParsing, DefaultAlgorithms):
         parser.add_argument('-2', '--solution2', action='store_true', dest='solution2')
         parser.add_argument('--custom', dest='custom', type=str, default=None)
         parser.add_argument('-e', '--example', action='store_true', dest='example')
+        parser.add_argument('-v', '--verbose', action='store_true', dest='verbose')
         return parser
 
     @classmethod
@@ -66,6 +69,8 @@ class TemplateSolution(abc.ABC, DefaultParsing, DefaultAlgorithms):
         parser = cls.setup_argparse()
         args = parser.parse_args()
         day = cls.data_path()
+        if args.verbose:
+            cls.verbose = True
         if args.custom is not None:
             input_file = day / args.custom
         elif args.example:
