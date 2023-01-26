@@ -50,6 +50,13 @@ for folder_year in ROOT.dirs():
 
 
 tasks = [task.as_vscode_task() for task in tasks]
+tasks.append({
+    'label': 'generate tasks',
+    'type': 'shell',
+    'command': 'python',
+    'args': ['vscode_task_generator.py'],
+})
+
 output['tasks'] = tasks
 
 ROOT.joinpath('.vscode').makedirs_p()

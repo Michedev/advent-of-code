@@ -1,5 +1,5 @@
 import time
-
+# pyximport.install(setup_args={"include_dirs": [np.get_include()], "extra_compile_args": ["-O3", "-march=native"]})
 import numpy as np
 import matplotlib.pyplot as plt
 import solution1

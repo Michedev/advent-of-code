@@ -12,6 +12,7 @@ Data = namedtuple('Data', ('sequence', 'rules'))
 
 
 class Day14Solution(TemplateSolution):
+
     @classmethod
     def data_path(cls):
         return Path(__file__).parent
