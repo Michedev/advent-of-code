@@ -1,3 +1,9 @@
+"""
+Run this script to generate the .vscode/tasks.json file.
+This will create a task for each day of each year, solving the first part, the second part, the example and the example for the second part of the problem.
+"""
+
+
 from typing import Literal
 from path import Path
 from dataclasses import dataclass
