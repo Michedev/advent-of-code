@@ -31,8 +31,8 @@ class ProxyRule:
         self.key = int(m.group('key'))
         self.or_rules = self._get_rules(rule)
 
-    @classmethod
-    def _get_rules(cls, rule):
+    
+    def _get_rules(self, rule):
         """
         >>> ProxyRule._get_rules("43: 485 43 | 4 234 94 2939 23 | 49 4")
         [[485, 43], [4, 234, 94, 2939, 23], [49, 4]]
@@ -41,7 +41,7 @@ class ProxyRule:
         """
         result = []
         i_start = rule.index(':')
-        for m in cls.num_regex.finditer(rule, i_start):
+        for m in self.num_regex.finditer(rule, i_start):
             and_rule = []
             for x in m.group(1).strip().split(' '):
                 and_rule.append(int(x))

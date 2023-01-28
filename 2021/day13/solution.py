@@ -12,12 +12,12 @@ Data = namedtuple('Data', ['points', 'splits'])
 
 
 class Day13Solution(TemplateSolution):
-    @classmethod
-    def data_path(cls):
+    
+    def data_path(self):
         return Path(__file__).parent
 
-    @classmethod
-    def parse(cls, input_file):
+    
+    def parse(self, input_file):
         with open(input_file) as f:
             data = f.read().split('\n')
         i = 0
@@ -39,8 +39,8 @@ class Day13Solution(TemplateSolution):
             i += 1
         return Data(points, splits)
 
-    @classmethod
-    def fold(cls, points: set, axis: int, pos: int):
+    
+    def fold(self, points: set, axis: int, pos: int):
         assert axis in (0, 1)
         above_points = set()
         below_points = set()
@@ -57,18 +57,18 @@ class Day13Solution(TemplateSolution):
             above_points.add(mapped_point)
         return above_points
 
-    @classmethod
-    def solution1(cls, data: Data):
+    
+    def solution1(self, data: Data):
         points = data.points
         for axis, pos in data.splits:
-            points = cls.fold(points, axis, pos)
+            points = self.fold(points, axis, pos)
             return len(points)
 
-    @classmethod
-    def solution2(cls, data: Data):
+    
+    def solution2(self, data: Data):
         points = data.points.copy()
         for axis, pos in data.splits:
-            points = cls.fold(points, axis, pos)
+            points = self.fold(points, axis, pos)
         x_size: int = max(x for x, y in points) + 1
         y_size: int = max(y for x, y in points) + 1
         matrix = np.zeros((x_size, y_size), dtype=bool)
@@ -76,7 +76,7 @@ class Day13Solution(TemplateSolution):
             matrix[x, y] = True
         matrix = np.transpose(matrix, (1, 0))
         plt.imshow(matrix)
-        plt.savefig(cls.data_path() / 'solution2.png')
+        plt.savefig(self.data_path() / 'solution2.png')
         plt.close()
         result = '\n'
         for i in range(matrix.shape[0]):

@@ -121,8 +121,8 @@ class BoatMover:
             self.step2_(action)
         return abs(bm.pos).sum()
 
-    @classmethod
-    def setup_solution2(cls, input_path: str):
+    
+    def setup_solution2(self, input_path: str):
         return cls(input_path, start_pos=(0, 0), waypoint_pos=(1, 10) )
 
 

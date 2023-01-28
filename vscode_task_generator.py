@@ -18,7 +18,7 @@ class Data:
     script_type: Literal['1', '2', 'example', 'example-2'] = '1'
 
     def as_vscode_task(self):
-        args = [f'{self.year}/{self.day}/solution.py']
+        args = [f'-y {self.year}', f'-d {self.day.replace("day", "")}']
         if self.script_type == 'example':
             args.append('--example')
         elif self.script_type == '2':
@@ -26,10 +26,11 @@ class Data:
         elif self.script_type == 'example-2':
             args.append('--example')
             args.append('--solution2')
+        args.append('${input:verbose}')
         return {
             'label': f'{self.year} {self.day} {self.script_type}',
             'type': 'shell',
-            'command': 'python',
+            'command': './run',
             'args': args,
             "options": {
                 "env": {
@@ -40,6 +41,7 @@ class Data:
         }
 
 tasks = []
+inputs = []
 output = {
   "version": "2.0.0",
 }
@@ -62,8 +64,16 @@ tasks.append({
     'command': 'python',
     'args': ['vscode_task_generator.py'],
 })
+inputs.append({
+    'id': 'verbose',
+    'description': 'Set verbose mode (default: false)',
+    'type': 'pickString',
+    'options': ['', '--verbose']
+})
+
 
 output['tasks'] = tasks
+output['inputs'] = inputs
 
 ROOT.joinpath('.vscode').makedirs_p()
 

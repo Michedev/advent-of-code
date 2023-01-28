@@ -12,8 +12,8 @@ class Parser:
         self.regex_value = re.compile(r'\s*(\d+)\s*')
         self.regex_par = re.compile(r'\((.+)\)')
 
-    @classmethod
-    def parse_input(cls, input_path):
+    
+    def parse_input(self, input_path):
         with open(input_path) as f:
             data = f.read().split('\n')
         return [cls(x) for x in data if x]

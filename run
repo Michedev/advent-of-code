@@ -1,34 +1,28 @@
 #!/usr/bin/env python3
 
 import argparse
+
+from path import Path
 from template import TemplateSolution
 import subprocess
 import sys
+from template import get_solution_instance
+import importlib
 
 def main():
     parser = TemplateSolution.setup_argparse()
-    parser.add_argument('-d', '--day', dest='day', type=str, required=True)  # e.g. 2021/01
 
     args = parser.parse_args()
-    day = args.day
 
-    argv = sys.argv[:1]
-    filtered_argv = []
-    skip_next = False
-    for el in argv:
-        if skip_next:
-            skip_next = False
-            continue
-        if el == '-d':
-            skip_next = True
-            continue
-        elif el.startswith('--day='):
-            continue
-        else:
-            filtered_argv.append(el)
-    print(f'calling python {day}/solution.py')
-    subprocess.call(['python', f'{day}/solution.py'] + filtered_argv, cwd=day)
+    # dynamically import the solution file
+    solution_folder = Path(__file__).parent / f'{args.year}' / f'day{args.day:02}'
+    sys.path.append(str(solution_folder))
+    for file in solution_folder.files('*.py'):
+        module_name = file.name.replace('.py', '')
+        importlib.import_module(module_name)
 
+    # run the solution
+    get_solution_instance(args.year, args.day).main()
 
 if __name__ == '__main__':
     main()

@@ -4,6 +4,11 @@ from template import TemplateSolution
 import networkx as nx
 import matplotlib.pyplot as plt
 
+import sys
+for folder in Path(__file__).parent.dirs():
+    for folder in folder.dirs():
+        if folder.name.startswith('day'):
+            sys.path.append(str(folder))
 
 @dataclass
 class Data:
@@ -13,16 +18,16 @@ class Data:
     row_length: int
 
 
-class Solution(TemplateSolution):
+class Solution(TemplateSolution, year=2021, day=15):
 
-    @classmethod
-    def data_path(cls):
+    
+    def data_path(self):
         return Path(__file__).parent
 
-    @classmethod
-    def parse(cls, input_file):
+    
+    def parse(self, input_file):
         print(input_file)
-        cls.is_example = input_file.basename() == 'input_example.txt'
+        self.is_example = input_file.basename() == 'input_example.txt'
         with open(input_file) as f:
             data = [[int(x) for x in line] for line in f.read().split('\n') if line]
         row_length = len(data[0])
@@ -39,7 +44,7 @@ class Solution(TemplateSolution):
                     graph.add_edge((i+1, j), (i, j) , weight=c)
                 if j < row_length - 1:
                     graph.add_edge((i, j+1), (i, j), weight=c)
-        # if cls.is_example:
+        # if self.is_example:
         #     values = nx.get_node_attributes(graph,'value')
         #     labels = nx.get_edge_attributes(graph,'weight')
         #     nx.draw(graph, labels=values)
@@ -48,21 +53,21 @@ class Solution(TemplateSolution):
         
         return Data(graph, num_rows, row_length)
 
-    @classmethod
-    def solution1(cls, data: Data):
+    
+    def solution1(self, data: Data):
         graph = data.graph
         
         sequence = nx.algorithms.dijkstra_path(graph, (0, 0) , (data.num_rows - 1, data.row_length - 1))
         result = sum(graph.nodes[node]['value'] for node in sequence[1:])
         
-        if not cls.is_example:
+        if not self.is_example:
             assert result < 494, 'result is too high: {}'.format(result)
             assert result != 469, 'result should be different from 469'
             assert result == 487, 'result should be from 487, it is {}'.format(result)
         return result
 
-    @classmethod
-    def solution2(cls, data: Data):
+    
+    def solution2(self, data: Data):
         """
         The entire cave is actually five times larger in both dimensions than you thought; the area you originally scanned is just one tile in a 5x5 tile area that forms the full map. Your original map tile repeats to the right and downward; each time the tile repeats to the right or downward, all of its risk levels are 1 higher than the tile immediately up or left of it. However, risk levels above 9 wrap back around to 1. So, if your original map had some position with a risk level of 8, then that same position on each of the 25 total tiles would be as follows:
 

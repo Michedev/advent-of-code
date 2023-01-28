@@ -6,20 +6,20 @@ from template import TemplateSolution
 
 
 class Day12Solution(TemplateSolution):
-    @classmethod
-    def data_path(cls):
+    
+    def data_path(self):
         return Path(__file__).parent
 
-    @classmethod
-    def parse(cls, input_file):
+    
+    def parse(self, input_file):
         with open(input_file) as f:
             data = f.read()
         data = [line.split('-') for line in data.split('\n')]
         data_reversed = [(b, a) for a, b in data]
         return data + data_reversed
 
-    @classmethod
-    def single_step(cls, data, counter, start: str):
+    
+    def single_step(self, data, counter, start: str):
         result = 0
         counter[start] += 1
         paths = [b for a, b in data if a == start and (b.isupper() or counter[b] < 1) and b != 'start']
@@ -27,12 +27,12 @@ class Day12Solution(TemplateSolution):
             if dest == 'end':
                 result += 1
             else:
-                result += cls.single_step(data, counter, dest)
+                result += self.single_step(data, counter, dest)
         counter[start] -= 1
         return result
 
-    @classmethod
-    def single_step2(cls, data, counter, start: str, small_twice=False):
+    
+    def single_step2(self, data, counter, start: str, small_twice=False):
         result = 0
         counter[start] += 1
         if start.islower() and counter[start] == 2:
@@ -43,19 +43,19 @@ class Day12Solution(TemplateSolution):
             if dest == 'end':
                 result += 1
             else:
-                result += cls.single_step2(data, counter, dest, small_twice)
+                result += self.single_step2(data, counter, dest, small_twice)
         counter[start] -= 1
         return result
 
-    @classmethod
-    def solution1(cls, data):
+    
+    def solution1(self, data):
         counter = defaultdict(lambda: 0)
-        return cls.single_step(data, counter, 'start')
+        return self.single_step(data, counter, 'start')
 
-    @classmethod
-    def solution2(cls, data):
+    
+    def solution2(self, data):
         counter = defaultdict(lambda: 0)
-        return cls.single_step2(data, counter, 'start')
+        return self.single_step2(data, counter, 'start')
 
 
 def test_input_example_solution1():

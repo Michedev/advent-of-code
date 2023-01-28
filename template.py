@@ -5,10 +5,15 @@ from path import Path
 import abc
 import numpy as np
 
+_registry = {}
+
+def get_solution_instance(year, day):
+    return _registry[(year, day)]()
+
 class DefaultParsing:
 
-    @classmethod
-    def parse_2dmatrix_single_digit(cls, input_file) -> np.array:
+    
+    def parse_2dmatrix_single_digit(self, input_file) -> np.array:
         """
         >>> data = DefaultParsing.parse_2dmatrix_single_digit('input_test.txt')
         >>> np.all(data == np.array([[1,2],[3,4]]))
@@ -22,80 +27,90 @@ class DefaultParsing:
 
 class DefaultAlgorithms:
 
-    @classmethod
-    def get_neighbors_2d_matrix(cls, data, i, j, diagonal=True):
+    
+    def get_neighbors_2d_matrix(self, data, i, j, diagonal=True):
         directions = [(data[i + dx, j + dy], i + dx, j + dy) for dx, dy in product([-1, 0, 1], [-1, 0, 1]) if
                       not (dx == 0 and dy == 0) and (diagonal or ((abs(dx) + abs(dy)) < 2)) and
                       (data.shape[0] > (i + dx) >= 0) and (data.shape[1] > (j + dy) >= 0)]
         return directions
 
 
-class TemplateSolution(abc.ABC, DefaultParsing, DefaultAlgorithms):
+class TemplateSolution(DefaultParsing, DefaultAlgorithms):
 
     verbose = False
 
-    @classmethod
+    def __init_subclass__(cls, year=None, day=None, **kwargs):
+        super().__init_subclass__(**kwargs)
+        _registry[(year, day)] = cls
+
+    
     @abc.abstractmethod
-    def data_path(cls):
+    def data_path(self):
+        """
+        Data path for the day
+        """
         pass
 
-    @classmethod
+    
     @abc.abstractmethod
-    def parse(cls, input_file):
+    def parse(self, input_file):
+        """
+        Parse the input file
+        """
         raise NotImplementedError()
 
-    @classmethod
+    
     @abc.abstractmethod
-    def solution1(cls, data):
+    def solution1(self, data):
         raise NotImplementedError()
 
-    @classmethod
+    
     @abc.abstractmethod
-    def solution2(cls, data):
+    def solution2(self, data):
         raise NotImplementedError()
 
-    @classmethod
-    def setup_argparse(cls):
+    @staticmethod    
+    def setup_argparse():
         parser = argparse.ArgumentParser()
         parser.add_argument('-i', '--input', dest='input', type=Path)
         parser.add_argument('-2', '--solution2', action='store_true', dest='solution2')
         parser.add_argument('--custom', dest='custom', type=str, default=None)
         parser.add_argument('-e', '--example', action='store_true', dest='example')
         parser.add_argument('-v', '--verbose', action='store_true', dest='verbose')
+        parser.add_argument('-y', '--year', dest='year', type=int, required=True)  # e.g. 2021
+        parser.add_argument('-d', '--day', dest='day', type=int, required=True)  # e.g. 1
+
         return parser
 
-    @classmethod
-    def main(cls):
-        parser = cls.setup_argparse()
+    
+    def main(self):
+        parser = self.setup_argparse()
         args = parser.parse_args()
-        day = cls.data_path()
+        day = self.data_path()
         if args.verbose:
-            cls.verbose = True
+            self.verbose = True
         if args.custom is not None:
             input_file = day / args.custom
         elif args.example:
             input_file = day / 'input_example.txt'
         else:
             input_file = day / 'input.txt'
-        data = cls.parse(input_file)
+        data = self.parse(input_file)
         if args.solution2:
-            print(f'solution2(data) = {cls.solution2(data)}')
+            print(f'solution2(data) = {self.solution2(data)}')
         else:
-            print(f'solution1(data) = {cls.solution1(data)}')
+            print(f'solution1(data) = {self.solution1(data)}')
 
-    @classmethod
-    def parse_solution1(cls, input_file: str):
-        day = cls.data_path()
+    
+    def parse_solution1(self, input_file: str):
+        day = self.data_path()
         input_path = day / input_file
-        data = cls.parse(input_path)
-        return cls.solution1(data)
+        data = self.parse(input_path)
+        return self.solution1(data)
 
-    @classmethod
-    def parse_solution2(cls, input_file: str):
-        day = cls.data_path()
+    
+    def parse_solution2(self, input_file: str):
+        day = self.data_path()
         input_path = day / input_file
-        data = cls.parse(input_path)
-        return cls.solution2(data)
-
-if __name__ == '__main__':
-    TemplateSolution.main()
+        data = self.parse(input_path)
+        return self.solution2(data)
