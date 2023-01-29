@@ -72,13 +72,18 @@ class TemplateSolution(DefaultParsing, DefaultAlgorithms):
     @staticmethod    
     def setup_argparse():
         parser = argparse.ArgumentParser()
-        parser.add_argument('-i', '--input', dest='input', type=Path)
-        parser.add_argument('-2', '--solution2', action='store_true', dest='solution2')
-        parser.add_argument('--custom', dest='custom', type=str, default=None)
-        parser.add_argument('-e', '--example', action='store_true', dest='example')
-        parser.add_argument('-v', '--verbose', action='store_true', dest='verbose')
-        parser.add_argument('-y', '--year', dest='year', type=int, required=True)  # e.g. 2021
-        parser.add_argument('-d', '--day', dest='day', type=int, required=True)  # e.g. 1
+        parser.add_argument('-2', '--solution2', action='store_true', dest='solution2', 
+                            description='Run solution to part 2')
+        parser.add_argument('--custom', dest='custom', type=str, default=None,
+                            help='Use a custom input file (e.g. input_test.txt)')
+        parser.add_argument('-e', '--example', action='store_true', dest='example',
+                            help='Use the example input file (e.g. input_example.txt)')
+        parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
+                            help='Verbose output')
+        parser.add_argument('-y', '--year', dest='year', type=int, required=True,
+                            help='Solution year (e.g. 2021)')  # e.g. 2021
+        parser.add_argument('-d', '--day', dest='day', type=int, required=True,
+                            help="Solution day (e.g. 1)")  # e.g. 1
 
         return parser
 
