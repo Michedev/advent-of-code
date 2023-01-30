@@ -68,6 +68,10 @@ class Solution(TemplateSolution, year=2021, day=16):
         packet_type = self.bin_to_dec(packet_type)
         if packet_type == 4: # is literal
             literal = self.parse_literal(line[6:])
+        else: # is operator
+            subpackets_length = line[6]
+            subpackets_length = 11 if subpackets_length == 0 else 15
+            
             
 
     
