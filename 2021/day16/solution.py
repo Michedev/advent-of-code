@@ -59,7 +59,8 @@ class Solution(TemplateSolution, year=2021, day=16):
             if line[i] == 0:
                 break
         result = self.bin_to_dec(bits)
-        return result
+        ending_index = i+5
+        return result, ending_index
     
     def calc_line(self, line: np.array):
         packet_version = line[0:3]
@@ -67,12 +68,29 @@ class Solution(TemplateSolution, year=2021, day=16):
         packet_type = line[3:6]
         packet_type = self.bin_to_dec(packet_type)
         if packet_type == 4: # is literal
-            literal = self.parse_literal(line[6:])
+            literal, end_index = self.parse_literal(line[6:])
+            return literal, end_index
         else: # is operator
-            subpackets_length = line[6]
-            subpackets_length = 11 if subpackets_length == 0 else 15
-            
-            
+            # If the length type ID is 0, then the next 15 bits are a number that represents the total length in bits of the sub-packets contained by this packet.
+            # If the length type ID is 1, then the next 11 bits are a number that represents the number of sub-packets immediately contained by this packet.
+
+            length_type_id = line[6] 
+            subpackets_length = 11 if length_type_id == 0 else 15
+            subpackets_length = line[7:7+subpackets_length]
+            subpackets_length = self.bin_to_dec(subpackets_length)
+            subpackets = []
+            start_position = 7+subpackets_length
+            if length_type_id:
+                num_subpackets = subpackets_length
+                for _ in range(num_subpackets):
+                    value, end_position = self.calc_line(line[start_position:])
+                    start_position += end_position
+                    subpackets.append(value)
+                return sum(subpackets), start_position
+            else:
+                subpackets = line[start_position:start_position+subpackets_length]
+                value, pos = self.calc_line(subpackets)
+                return value, pos + start_position
 
     
     def solution1(self, data: List[np.array]):
