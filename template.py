@@ -72,8 +72,7 @@ class TemplateSolution(DefaultParsing, DefaultAlgorithms):
     @staticmethod    
     def setup_argparse():
         parser = argparse.ArgumentParser()
-        parser.add_argument('-2', '--solution2', action='store_true', dest='solution2', 
-                            description='Run solution to part 2')
+        parser.add_argument('-2', '--solution2', action='store_true', dest='solution2', help='Run solution to part 2')
         parser.add_argument('--custom', dest='custom', type=str, default=None,
                             help='Use a custom input file (e.g. input_test.txt)')
         parser.add_argument('-e', '--example', action='store_true', dest='example',
