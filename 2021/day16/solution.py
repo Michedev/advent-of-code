@@ -285,6 +285,8 @@ class Solution(TemplateSolution, year=2021, day=16):
             if self.verbose:
                 print(f'packet_value: {packet_value}')
             result.append(packet_value)
+        if len(result) == 1:
+            return result[0]
         return result
 
 if __name__ == '__main__':
