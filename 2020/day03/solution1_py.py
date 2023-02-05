@@ -32,9 +32,9 @@ def run_1(grid):
 def main(repeat=1):
     grid = parse_input(repeat)
     num_trees = run_1(grid)
-
+    print(f'Number of trees: {num_trees}')
     return num_trees
 
 
 if __name__ == '__main__':
-    main()
+    main(800)

@@ -1,6 +1,6 @@
 import sequtils
 import strutils
-import nimpy
+# import nimpy
 
 proc read_input(t: int): seq[seq[bool]] =
     var lines = readFile("input_example.txt").string.split("\n")
@@ -28,7 +28,12 @@ proc solution1(grid: seq[seq[bool]]): int =
         my_y = (my_y + 3) mod num_cols
     return num_trees
 
-proc main*(t: int): int {.exportpy.} =
+proc main*(t: int): int =  #: int {.exportpy.} =
     let grid = read_input(t)
     let num_trees = solution1(grid)
+    echo "Solution 1: ", num_trees
     return num_trees
+
+
+when isMainModule:
+    discard main(100)
