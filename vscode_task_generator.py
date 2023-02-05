@@ -67,7 +67,7 @@ for folder_year in ROOT.dirs():
                     tasks.append(Data(folder_year.name, folder_day.name, 'example'))
                     tasks.append(Data(folder_year.name, folder_day.name, 'example-2'))
                     for custom_txt_path in folder_day.files('*.txt'):
-                        if custom_txt_path.basename() != 'input.txt' or custom_txt_path.basename() != 'input_example.txt':
+                        if custom_txt_path.basename() != 'input.txt' and custom_txt_path.basename() != 'input_example.txt':
                             tasks.append(Data(folder_year.name, folder_day.name, 'custom', custom_txt_path.basename()))
                             tasks.append(Data(folder_year.name, folder_day.name, 'custom-2', custom_txt_path.basename()))
 
