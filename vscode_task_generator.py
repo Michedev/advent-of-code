@@ -51,47 +51,153 @@ class Data:
 
         }
 
-tasks = []
-inputs = []
-output = {
-  "version": "2.0.0",
-}
-for folder_year in ROOT.dirs():
-    if folder_year.name.startswith("20"):
-        for folder_day in folder_year.dirs():
-            if folder_day.name.startswith("day"):
-                if folder_day.joinpath('solution.py').exists():
-                    print(f'python {folder_day.joinpath("solution.py")}')
-                    tasks.append(Data(folder_year.name, folder_day.name, '1'))
-                    tasks.append(Data(folder_year.name, folder_day.name, '2'))
-                    tasks.append(Data(folder_year.name, folder_day.name, 'example'))
-                    tasks.append(Data(folder_year.name, folder_day.name, 'example-2'))
-                    for custom_txt_path in folder_day.files('*.txt'):
-                        if custom_txt_path.basename() not in ('input.txt', 'input_example.txt'):
-                            tasks.append(Data(folder_year.name, folder_day.name, 'custom', custom_txt_path.basename()))
-                            tasks.append(Data(folder_year.name, folder_day.name, 'custom-2', custom_txt_path.basename()))
+    def as_vscode_launch(self):
+        args = [f'-y', f'{self.year}', f'-d', f'{self.day.replace("day", "")}']
+        if self.script_type == 'example':
+            args.append('--example')
+        elif self.script_type == '2':
+            args.append('--solution2')
+        elif self.script_type == 'example-2':
+            args.append('--example')
+            args.append('--solution2')
+        elif self.script_type == 'custom':
+            assert self.custom_fname is not None
+            args.append('--custom')
+            args.append(self.custom_fname)
+        elif self.script_type == 'custom-2':
+            assert self.custom_fname is not None
+            args.append('--custom')
+            args.append(self.custom_fname)
+            args.append('--solution2')
+        args.append('${input:verbose}')
+        custom_fname_str = f'{self.custom_fname}' if self.custom_fname is not None else ''
+        return {
+            'name': f'{self.year} {self.day} {self.script_type} {custom_fname_str}',
+            "type": "python",
+            "request": "launch",
+            "program": "run",
+            'args': args,
+            "options": {
+                "env": {
+                    "PYTHONPATH": f"{self.year}/{self.day}:./"
+                }
+            },
+            "justMyCode": True
+        }
 
-
-
-tasks = [task.as_vscode_task() for task in tasks]
-tasks.append({
-    'label': 'generate tasks',
-    'type': 'shell',
-    'command': 'python',
-    'args': ['vscode_task_generator.py'],
-})
-inputs.append({
+inputs = [
+        {
+            "id": "year",
+            "type": "promptString",
+            "description": "Year",
+        },
+        {
+            "id": "day",
+            "type": "promptString",
+            "description": "Day",
+        },
+        {
+            "id": "solutiontype",
+            "type": "pickString",
+            "options": [
+                "",
+                "-2"
+            ],
+            "description": "Solve problem 1 or 2",
+        },
+        {
+            "id": "is_example",
+            "type": "pickString",
+            "options": [
+                "",
+                "-e"
+            ],
+            "description": "Use example input or not"
+        },
+    {
     'id': 'verbose',
     'description': 'Set verbose mode (default: false)',
     'type': 'pickString',
     'options': ['', '--verbose']
-})
+}
+]
+tasks_json = {
+  "version": "2.0.0",
+  "inputs": inputs,
+}
+
+launch_json = {
+        "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch solution advent of code",
+            "type": "python",
+            "request": "launch",
+            "program": "run",
+            "args": [
+                "-y", "${input:year}",
+                "-d", "${input:day}",
+                "${input:solutiontype}",
+                "${input:is_example}"
+            ],
+            "justMyCode": True
+        }
+    ],
+    "inputs": inputs
+
+}
+
+def find_all_aoc_scripts():
+    vscode_aoc_scripts = []
+    for folder_year in ROOT.dirs():
+        if folder_year.name.startswith("20"):
+            for folder_day in folder_year.dirs():
+                if folder_day.name.startswith("day"):
+                    if folder_day.joinpath('solution.py').exists():
+                        print(f'python {folder_day.joinpath("solution.py")}')
+                        vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, '1'))
+                        vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, '2'))
+                        vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, 'example'))
+                        vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, 'example-2'))
+                        for custom_txt_path in folder_day.files('*.txt'):
+                            if custom_txt_path.basename() not in ('input.txt', 'input_example.txt'):
+                                vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, 'custom', custom_txt_path.basename()))
+                                vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, 'custom-2', custom_txt_path.basename()))
+    return vscode_aoc_scripts
+
+vscode_aoc_scripts = find_all_aoc_scripts()
 
 
-output['tasks'] = tasks
-output['inputs'] = inputs
+
+tasks_json['tasks'] = [task.as_vscode_task() for task in vscode_aoc_scripts] + [
+    {
+        'label': 'generate tasks',
+        'type': 'shell',
+        'command': 'python',
+        'args': ['vscode_task_generator.py'],
+    }
+]
+
+launch_json['configurations'] = [task.as_vscode_launch() for task in vscode_aoc_scripts] + [
+        {
+            "name": "Launch solution advent of code",
+            "type": "python",
+            "request": "launch",
+            "program": "run",
+            "args": [
+                "-y", "${input:year}",
+                "-d", "${input:day}",
+                "${input:solutiontype}",
+                "${input:is_example}",
+                "${input:verbose}"
+            ],
+            "justMyCode": True
+        }
+    ]
 
 ROOT.joinpath('.vscode').makedirs_p()
 
 with open(ROOT.joinpath('.vscode', 'tasks.json'), 'w') as f:
-    json.dump(output, f, indent=4)
+    json.dump(tasks_json, f, indent=4)
+with open(ROOT.joinpath('.vscode', 'launch.json'), 'w') as f:
+    json.dump(launch_json, f, indent=4)
