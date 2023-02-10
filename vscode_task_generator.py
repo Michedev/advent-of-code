@@ -4,7 +4,7 @@ This will create a task for each day of each year, solving the first part, the s
 """
 
 
-from typing import Literal, Optional
+from typing import Iterable, Literal, Optional
 from path import Path
 from dataclasses import dataclass
 import json
@@ -15,7 +15,7 @@ ROOT = Path(__file__).parent
 class Data:
     year: str
     day: str
-    script_type: Literal['1', '2', 'example', 'example-2', 'custom', 'custom-2'] = '1'
+    script_type: Literal['1', '2', 'example', 'example-2', 'custom', 'custom-2', 'doctest'] = '1'
     custom_fname: Optional[str] = None
 
     def as_vscode_task(self):
@@ -52,7 +52,7 @@ class Data:
         }
 
     def as_vscode_launch(self):
-        args = [f'-y', f'{self.year}', f'-d', f'{self.day.replace("day", "")}']
+        args = [f'-y', f'{self.year}', f'-d', f'{self.day.replace("day", "")}', '${input:verbose}']
         if self.script_type == 'example':
             args.append('--example')
         elif self.script_type == '2':
@@ -69,21 +69,26 @@ class Data:
             args.append('--custom')
             args.append(self.custom_fname)
             args.append('--solution2')
-        args.append('${input:verbose}')
+        elif self.script_type == 'doctest':
+            args = [ '-v', f'{self.year}/{self.day}/{self.custom_fname}']
         custom_fname_str = f'{self.custom_fname}' if self.custom_fname is not None else ''
-        return {
-            'name': f'{self.year} {self.day} {self.script_type} {custom_fname_str}',
+        
+        result = {
+            'name': ('Doctest ' if self.script_type == 'doctest' else '') + f'{self.year} {self.day} {self.script_type} {custom_fname_str}',
             "type": "python",
             "request": "launch",
             "program": "run",
             'args': args,
-            "options": {
-                "env": {
-                    "PYTHONPATH": f"{self.year}/{self.day}:./"
-                }
+            "env": {
+                "PYTHONPATH": f"{self.year}/{self.day}:./"
             },
             "justMyCode": True
         }
+        # if doctest, remove program and replace with module doctest
+        if self.script_type == 'doctest':
+            del result['program']
+            result['module'] = 'doctest'
+        return result
 
 inputs = [
         {
@@ -147,6 +152,25 @@ launch_json = {
 
 }
 
+def iter_python_scripts() -> Iterable[Path]:
+    for folder_year in ROOT.dirs():
+        if folder_year.name.startswith("20"):
+            for folder_day in folder_year.dirs():
+                if folder_day.name.startswith("day"):
+                    if folder_day.joinpath('solution.py').exists():
+                        yield from folder_day.files('*.py')  # this part doesn't support subdirs yet
+
+def find_doctestable_scripts():
+    for script in iter_python_scripts():
+        with open(script, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if '>>> ' in line:
+                    yield script
+                    break
+                    
+
+
 def find_all_aoc_scripts():
     vscode_aoc_scripts = []
     for folder_year in ROOT.dirs():
@@ -160,7 +184,7 @@ def find_all_aoc_scripts():
                         vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, 'example'))
                         vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, 'example-2'))
                         for custom_txt_path in folder_day.files('*.txt'):
-                            if custom_txt_path.basename() not in ('input.txt', 'input_example.txt'):
+                            if custom_txt_path.basename() not in ('input.txt', 'input_example.txt') and "input" in custom_txt_path.basename():
                                 vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, 'custom', custom_txt_path.basename()))
                                 vscode_aoc_scripts.append(Data(folder_year.name, folder_day.name, 'custom-2', custom_txt_path.basename()))
     return vscode_aoc_scripts
@@ -192,8 +216,19 @@ launch_json['configurations'] = [task.as_vscode_launch() for task in vscode_aoc_
                 "${input:verbose}"
             ],
             "justMyCode": True
-        }
+        },
+        {
+            "name": "Generate tasks",
+            "type": "python",
+            "request": "launch",
+            "program": "vscode_task_generator.py",
+            "justMyCode": True
+        } 
     ]
+
+doctestable_scripts = [Data(script_path.parent.parent.name, script_path.parent.name, 'doctest', script_path.basename()) for script_path in find_doctestable_scripts()]
+
+launch_json['configurations'] += [task.as_vscode_launch() for task in doctestable_scripts]
 
 ROOT.joinpath('.vscode').makedirs_p()
 
